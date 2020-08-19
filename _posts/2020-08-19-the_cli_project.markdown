@@ -1,7 +1,7 @@
 ---
 layout: post
 title:      "The CLI Project"
-date:       2020-08-19 15:03:56 +0000
+date:       2020-08-19 11:03:57 -0400
 permalink:  the_cli_project
 ---
 
@@ -16,21 +16,108 @@ My first ever job was in junior year of high school. It was with a company that 
 # My Code
 
 In the CLI Gem Walkthrough video, it showed me how to setup all of my files to work together and what my files should be called.
-![My file layout](https://gyazo.com/51447d270a792290c20e1253b6f7e5e4)
 The program that I created would scrape new robots that superdroid made by their category: Autonomous, robot kits, inspection, specialized, prebuilt, programmable, wifi and the new robot arms.
 Once I figured out how to scrape one of the categories on the website in the Robots class (robots.rb), I was able to easily do it for rest of the categories.
-![Autonomous Category](https://gyazo.com/55a313b458ccb60b3aaa3ee02a721d7b)
+```
+    def self.scrape_autonomous
+      doc = Nokogiri::HTML(open("https://www.superdroidrobots.com/shop/category.aspx/autonomous-robots/210/"))
+      #binding.pry
+
+      robot = self.new
+      robot.category = "Autonomous Robots" 
+      robot.name = doc.search("div.listname").first.text
+      robot.desc = doc.search("div.listdesc").first.text
+      robot.availability = doc.search("#ContentPlaceHolder1_columnrepeater div.messages").first.text
+      robot.price = doc.search("#ContentPlaceHolder1_columnrepeater div.listprice").first.text
+      robot.url = doc.search("div.listname a").first.attr("href")
+      robot
+    end
+```
+
 Once I got on the scraping to work, I was able to focus on how it would look in the terminal. To do this I would be coding in the cli.rb file for the CLI class.
-![CLI class](https://gyazo.com/edf06adee9b69e6fad1d7a24b615bc9e)
+```
+    def list_robots 
+      puts "Let's Take a Look at the new Superdroid Robots:"
+      @robots = SuperDroidRobots::Robots.all 
+      @robots.each.with_index(1) do |robot, i|
+        puts "#{i}. "
+        puts " - #{robot.category} -".strip 
+		end
+		
+		def menu
+      input = nil
+      while input != "exit"
+        puts "Enter the number of the robot to get more info or type list to see the robots again or type exit"
+        input = gets.strip.downcase
+
+        if input.to_i > 0 
+          the_robot = @robots[input.to_i-1]
+          puts "#{the_robot.name}".strip
+          puts " - "
+          puts "#{the_robot.availability}".strip
+          puts " - "
+          puts "#{the_robot.price}".strip
+					
+			 elsif input == "list" #If I put list it will then give me the list of robots from list_robots again
+          list_robots
+       elsif input == "exit"
+          puts "I hope you found everything you were looking for!"
+       else #if I put in a random input it will tell me to put a number associated to a robot, or put list, or exit
+          puts "Did not understand. Please put the number related to the robot, type list to see the list again or type exit."
+       end
+		end
+	end
+```
+
 After a lot of testing and binding.pry I was able to finally run the program with very small errors. The superdroid-env is the environment for the whole thing, this is what the user would use to start the CLI program by typing in the terminal ./bin/superdroid-env
-![superdroid-env](https://gyazo.com/b2081fd3d27e71c690726688295a7080)
-![Calling superdroid-env](https://gyazo.com/3e2bdc8edcdc0d5859e98af2f0c58e49)
 Once the environment is put into the terminal the program would start and it would give out a list of all the robot categories with the newest robot.
-![Program Starts](https://gyazo.com/49d7e6656198c62cdd45308235880ae4)
+```
+Let's Take a Look at the new Superdroid Robots:
+1. 
+- Autonomous Robots -
+VIPR - Configurable Compact Indoor Autonomous Platform
+--------------
+2.
+- Robot Kits -
+Configurable - IG52-SB4-T, Custom Size 4WD All Terrain Robot
+--------------
+- Inspection Robots -
+Configurable - GPK-Zoom Wireless Tracked Inspection Robot with Zoom Camera
+--------------
+4.
+- Specialized Robots -
+Configurable - Lawn Mower Chassis Upfit Robot Package - WheelChair Motor System
+--------------
+5.
+- Prebuilt Custom Robots -
+NEW Prebuilt - 4WD IG42-SB-T Custom Size Robot
+--------------
+6.
+- Programmable Robots -
+Pololu Zumo Robot Kits
+--------------
+```
+
 If the user wants to know more info about the robot they can put the number associated to the robot category they are interested in. This would return the name of the newest robot, the availability, price, the description and the URL to the robot.
-![The Program](https://gyazo.com/a7f5d9892a6f6fd7b79f7e99876e2b48)
+```
+Enter the number of the robot to get more info or type list to see the robots again or type exit
+1 #My input
+VIPR - Configurable Compact Indoor Autonomous Platform
+ -
+Built to Order: 10-16 weeks
+ -
+$16,900.00
+ -
+A compact autonomous robotic platform that's offers flexibility in both development and design. Capable of creating it's own path in both known and unknown areas. SLAM and other sensors allow for accurate obstacle avoidance!
+```
+
 They can repeat the list if they type list into terminal or they can put in another number associated to the robot. If they want to exit the program they can just type exit and it will say goodbye.
-![Exit](https://gyazo.com/8fdab5fee258ba6a1312ce0d9efd3c16)
+```
+Enter the number of the robot to get more info or type list to see the robots again or type exit
+exit #my input
+I hope you found everything you were looking for!
+Thank you for stopping by!
+```
 
 # What I Could Have Done Different
 If I could have figured out the videogames program that I originally wanted to do, I would have stuck with that. The reason I say this is because I am a huge gamer and it would have been a lot of fun for me but I just couldnt figure out how to scrape the website because of how it was setup. 
